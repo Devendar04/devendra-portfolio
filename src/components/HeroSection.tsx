@@ -290,14 +290,14 @@ export default function HeroSection() {
             <a
               href="#contact"
               onClick={triggerSound}
-              className="inline-flex items-center gap-4 font-outfit font-extrabold text-white text-sm sm:text-base px-6 sm:px-8 py-3 rounded-full border-2 border-foreground bg-accent shadow-pop transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:translate-x-0.5 active:translate-y-0.5"
+              className="inline-flex items-center gap-1 font-outfit font-extrabold text-white text-sm sm:text-base px-6 sm:px-8 py-3 rounded-full border-2 border-foreground bg-accent shadow-pop transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:translate-x-0.5 active:translate-y-0.5"
               style={{
                 transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)",
               }}
             >
-              <span className="flex items-center">
+              <span className="flex items-center gap-1">
                 Let&apos;s&nbsp;
-                <span className="relative inline-flex flex-col overflow-hidden h-[20px] sm:h-[24px] min-w-[85px] sm:min-w-[110px] self-center">
+                <span className="relative inline-flex flex-col overflow-hidden h-[15px] sm:h-[24px] min-w-[85px] sm:min-w-[110px] self-center">
                   {ROTATING_WORDS.map((word, index) => {
                     const isActive = index === wordIndex;
                     const isPrev =
