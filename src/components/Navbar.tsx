@@ -29,7 +29,6 @@ class NavbarSoundEngine {
     if (!ctx) return;
     const t = ctx.currentTime;
 
-    // 1. High-frequency noise snap
     const bufLen = Math.floor(ctx.sampleRate * 0.015);
     const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
     const data = buf.getChannelData(0);
@@ -51,7 +50,6 @@ class NavbarSoundEngine {
     gain.connect(ctx.destination);
     noise.start(t);
 
-    // 2. Low-end triangle body punch
     const subOsc = ctx.createOscillator();
     const subGain = ctx.createGain();
     subOsc.type = 'triangle';
@@ -95,6 +93,9 @@ export default function Navbar() {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
 
+    // Vital fix for iOS/Safari active click visual recognition:
+    document.body.setAttribute("ontouchstart", "");
+
     return () => {
       window.removeEventListener('click', handleWarmup);
       window.removeEventListener('touchstart', handleWarmup);
@@ -104,7 +105,6 @@ export default function Navbar() {
   }, []);
 
   const handleScroll = (targetId: string) => {
-    // Triggers the exact custom arrow button click pop sound!
     if (soundEngineRef.current) {
       soundEngineRef.current.pop();
     }
@@ -119,7 +119,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-4 border-b-2 border-foreground"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-10 py-4 border-b-2 border-foreground"
       style={{
         background: scrolled ? "rgba(255,253,245,0.95)" : "rgba(255,253,245,0.8)",
         backdropFilter: "blur(10px)",
@@ -131,7 +131,7 @@ export default function Navbar() {
         dev<span className="text-accent">.</span>dp
       </span>
 
-      {/* Links */}
+      {/* Desktop Navigation Links */}
       <div className="hidden md:flex items-center gap-2">
         {links.map((l) => (
           <button
@@ -156,13 +156,14 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile CTA */}
+      {/* Mobile-Only CTA Button with Fixed Animations */}
       <button
         onClick={() => handleScroll("#contact")}
-        className="md:hidden font-outfit font-bold text-sm text-white px-4 py-2 rounded-full
-          border-2 border-foreground bg-accent shadow-pop"
+        className="md:hidden font-outfit font-bold text-sm text-white px-5 py-2 rounded-full
+          border-2 border-foreground bg-accent shadow-pop transition-all duration-150 ease-out
+          active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-active"
       >
-        Hire Me
+        Hire Me ✨
       </button>
     </nav>
   );

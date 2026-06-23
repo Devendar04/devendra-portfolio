@@ -13,6 +13,8 @@ const STACK_PILL_COLORS = [
 /* ── Metallic & Ambient Web Audio Sound Engine ─────────────────────────── */
 class ProjectSoundEngine {
   private ctx: AudioContext | null = null;
+  private rollOsc: OscillatorNode | null = null;
+  private rollGain: GainNode | null = null;
 
   public init() {
     if (this.ctx) return;
@@ -20,6 +22,7 @@ class ProjectSoundEngine {
       const AC = window.AudioContext || (window as any).webkitAudioContext;
       if (AC) {
         this.ctx = new AC();
+        this.setupRollingSynth();
       }
     } catch (e) {
       console.warn("Web Audio API not supported.");
@@ -33,6 +36,44 @@ class ProjectSoundEngine {
     }
     this.init();
     return this.ctx;
+  }
+
+  private setupRollingSynth() {
+    const ctx = this.ctx;
+    if (!ctx) return;
+
+    this.rollOsc = ctx.createOscillator();
+    this.rollGain = ctx.createGain();
+
+    this.rollOsc.type = 'sine'; 
+    this.rollOsc.frequency.setValueAtTime(120, ctx.currentTime);
+    this.rollGain.gain.setValueAtTime(0, ctx.currentTime);
+
+    const lpFilter = ctx.createBiquadFilter();
+    lpFilter.type = 'lowpass';
+    lpFilter.frequency.setValueAtTime(250, ctx.currentTime);
+
+    this.rollOsc.connect(lpFilter);
+    lpFilter.connect(this.rollGain);
+    this.rollGain.connect(ctx.destination);
+    this.rollOsc.start();
+  }
+
+  public updateRollingVelocity(velocity: number) {
+    const ctx = this.ctx; 
+    if (!ctx || !this.rollGain || !this.rollOsc || ctx.state === 'suspended') return;
+
+    const absVel = Math.abs(velocity);
+    const t = ctx.currentTime;
+
+    if (absVel < 0.05) {
+      this.rollGain.gain.setTargetAtTime(0, t, 0.05);
+    } else {
+      const targetGain = Math.min(0.08, absVel * 0.005);
+      const targetFreq = Math.min(300, 120 + absVel * 5);
+      this.rollGain.gain.setTargetAtTime(targetGain, t, 0.03);
+      this.rollOsc.frequency.setTargetAtTime(targetFreq, t, 0.04);
+    }
   }
 
   tick() {
@@ -99,38 +140,6 @@ class ProjectSoundEngine {
     subOsc.stop(t + 0.03);
   }
 
-  whoosh() {
-    const ctx = this.getCtx();
-    if (!ctx) return;
-    const t = ctx.currentTime;
-
-    const duration = 0.6; 
-    const bufLen = Math.floor(ctx.sampleRate * duration);
-    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
-
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(400, t);
-    filter.frequency.exponentialRampToValueAtTime(2600, t + 0.2);
-    filter.frequency.exponentialRampToValueAtTime(600, t + duration);
-    filter.Q.setValueAtTime(3.0, t); 
-
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.0, t);
-    gain.gain.linearRampToValueAtTime(0.1, t + 0.15);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
-
-    src.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    src.start(t);
-  }
-
   public suspend() {
     if (this.ctx && this.ctx.state === 'running') {
       this.ctx.suspend();
@@ -139,6 +148,7 @@ class ProjectSoundEngine {
 
   destroy() {
     if (this.ctx) {
+      if (this.rollOsc) { try { this.rollOsc.stop(); } catch(e){} }
       this.ctx.close();
       this.ctx = null;
     }
@@ -325,6 +335,10 @@ export default function ProjectsSection() {
         }
       }
 
+      if (engineRef.current && isIntersectingRef.current) {
+        engineRef.current.updateRollingVelocity(velocityRef.current);
+      }
+
       if (wheelRef.current) {
         if (isMobile) {
           wheelRef.current.style.transform = `none`;
@@ -340,6 +354,7 @@ export default function ProjectsSection() {
           const cardWidth = window.innerWidth * 0.82;
           const gap = 16;
           const totalWidth = cardWidth + gap;
+          
           const activeIndex = ((-rotationRef.current / anglePerItem) % totalItems + totalItems) % totalItems;
           
           let diff = i - activeIndex;
@@ -406,7 +421,7 @@ export default function ProjectsSection() {
     lastTime.current           = performance.now();
     targetRotationRef.current  = rotationRef.current;
     
-    if (engineRef.current && isIntersectingRef.current) engineRef.current.whoosh(); 
+    // REMOVED: engineRef.current.whoosh() trigger is gone for clean drag handling.
   }, []);
 
   useEffect(() => {
