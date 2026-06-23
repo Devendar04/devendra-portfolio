@@ -11,6 +11,76 @@ type AvatarState = "neutral" | "smile";
 
 const ROTATING_WORDS = ["Talk", "Connect", "Collaborate", "Build"];
 
+/* ── UI Pop Sound Engine ────────────────────────────────────────────── */
+class HeroSoundEngine {
+  private ctx: AudioContext | null = null;
+
+  public init() {
+    if (this.ctx) return;
+    try {
+      const AC = window.AudioContext || (window as any).webkitAudioContext;
+      if (AC) this.ctx = new AC();
+    } catch (e) {
+      console.warn("Web Audio API not supported.");
+    }
+  }
+
+  private getCtx(): AudioContext | null {
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      return this.ctx;
+    }
+    this.init();
+    return this.ctx;
+  }
+
+  public pop() {
+    const ctx = this.getCtx();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+
+    const bufLen = Math.floor(ctx.sampleRate * 0.015);
+    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(3500, t);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.15, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start(t);
+
+    const subOsc = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    subOsc.type = 'triangle';
+    subOsc.frequency.setValueAtTime(150, t);
+    subGain.gain.setValueAtTime(0.12, t);
+    subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+    
+    subOsc.connect(subGain);
+    subGain.connect(ctx.destination);
+    subOsc.start(t);
+    subOsc.stop(t + 0.03);
+  }
+
+  public destroy() {
+    if (this.ctx) {
+      this.ctx.close();
+      this.ctx = null;
+    }
+  }
+}
+
 function AnimatedAvatar() {
   const [state, setState] = useState<AvatarState>("neutral");
   const [hovered, setHovered] = useState(false);
@@ -135,16 +205,34 @@ function AnimatedAvatar() {
 
 export default function HeroSection() {
   const [wordIndex, setWordIndex] = useState(0);
-
-  // Track which stat card is currently hovered to re-trigger count up animations
   const [hoveredStatIndex, setHoveredStatIndex] = useState<number | null>(null);
+  const soundEngineRef = useRef<HeroSoundEngine | null>(null);
 
   useEffect(() => {
+    const engine = new HeroSoundEngine();
+    soundEngineRef.current = engine;
+
+    const handleWarmup = () => engine.init();
+    window.addEventListener('click', handleWarmup);
+    window.addEventListener('touchstart', handleWarmup);
+
     const interval = setInterval(() => {
       setWordIndex((prev) => (prev + 1) % ROTATING_WORDS.length);
     }, 2500);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('click', handleWarmup);
+      window.removeEventListener('touchstart', handleWarmup);
+      engine.destroy();
+    };
   }, []);
+
+  const triggerSound = () => {
+    if (soundEngineRef.current) {
+      soundEngineRef.current.pop();
+    }
+  };
 
   return (
     <section
@@ -201,6 +289,7 @@ export default function HeroSection() {
           <div className="flex gap-4 flex-wrap mb-10 items-center">
             <a
               href="#contact"
+              onClick={triggerSound}
               className="inline-flex items-center gap-4 font-outfit font-extrabold text-white text-sm sm:text-base px-6 sm:px-8 py-3 rounded-full border-2 border-foreground bg-accent shadow-pop transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:translate-x-0.5 active:translate-y-0.5"
               style={{
                 transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)",
@@ -261,6 +350,7 @@ export default function HeroSection() {
 
             <a
               href="#projects"
+              onClick={triggerSound}
               className="inline-flex items-center gap-2 font-outfit font-extrabold text-foreground text-sm sm:text-base px-6 sm:px-8 py-3 rounded-full border-2 border-foreground transition-all duration-200 hover:bg-tertiary hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop"
               style={{
                 transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)",
@@ -275,14 +365,9 @@ export default function HeroSection() {
         <FadeIn delay={0.5}>
           <div className="flex gap-3 flex-wrap max-w-xl">
             {HERO_STATS.map((s, index) => {
-              // Detect if there's a float decimal value (e.g. "9.0")
               const isFloat = s.value.includes(".");
-
-              // Extract numeric components cleanly keeping the dot if present
               const numericValue =
                 parseFloat(s.value.replace(/[^0-9.]/g, "")) || 0;
-
-              // Snatch trailing or leading non-numeric units (e.g. "+", "x")
               const suffix = s.value.replace(/[0-9.]/g, "");
 
               return (

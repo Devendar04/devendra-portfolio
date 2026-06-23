@@ -11,7 +11,7 @@ const FACTS = [
   { icon: '📍', bg: 'rgba(139,92,246,0.1)',  text: <>Based in <strong>Rajasthan, India</strong> · Open to remote</> },
 ]
 
-/* ── Playful Toy / Memphis — Acoustic Wooden Clack ────────────────────── */
+/* ── Playful Toy / Memphis Sound Engine ───────────────────────────────── */
 class AboutSoundEngine {
   private ctx: AudioContext | null = null;
 
@@ -25,6 +25,15 @@ class AboutSoundEngine {
     } catch (e) {
       console.warn("Web Audio API not supported in this browser.");
     }
+  }
+
+  private getCtx(): AudioContext | null {
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      return this.ctx;
+    }
+    this.init();
+    return this.ctx;
   }
 
   /* Acoustic Wooden Clack — pressing a colourful button on a wooden toy */
@@ -73,6 +82,46 @@ class AboutSoundEngine {
     osc.start(t);
     osc.stop(t + 0.045);
     noise.start(t);
+  }
+
+  /* Snappy Mechanical Pop — Noise burst + low triangle punch */
+  public pop() {
+    const ctx = this.getCtx();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+
+    const bufLen = Math.floor(ctx.sampleRate * 0.015);
+    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1);
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(3500, t);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.15, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start(t);
+
+    const subOsc = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    subOsc.type = 'triangle';
+    subOsc.frequency.setValueAtTime(150, t);
+    subGain.gain.setValueAtTime(0.12, t);
+    subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+    
+    subOsc.connect(subGain);
+    subGain.connect(ctx.destination);
+    subOsc.start(t);
+    subOsc.stop(t + 0.03);
   }
 
   public destroy() {
@@ -131,7 +180,12 @@ export default function AboutSection() {
               With 5+ years of passion for technology, I'm a B.Tech CS student specializing in Machine Learning and Generative AI. I build and deploy deep learning models, agentic AI systems, and RAG pipelines using PyTorch, LangChain, and Transformers. I love turning complex AI research into production-ready systems that solve real problems.
             </AnimatedText>
             <a
-              href="mailto:parjapatsunny12@gmail.com"
+              href={`https://mail.google.com/mail/?view=cm&to=parjapatsunny12@gmail.com`}
+              onClick={() => {
+                if (soundEngineRef.current) {
+                  soundEngineRef.current.pop();
+                }
+              }}
               className="inline-flex items-center gap-3 font-outfit font-bold text-white text-sm
                 px-6 sm:px-7 py-3 rounded-full border-2 border-foreground bg-accent shadow-pop
                 transition-all duration-200
