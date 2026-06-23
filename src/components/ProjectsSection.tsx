@@ -13,8 +13,6 @@ const STACK_PILL_COLORS = [
 /* ── Metallic & Ambient Web Audio Sound Engine ─────────────────────────── */
 class ProjectSoundEngine {
   private ctx: AudioContext | null = null;
-  private rollOsc: OscillatorNode | null = null;
-  private rollGain: GainNode | null = null;
 
   public init() {
     if (this.ctx) return;
@@ -22,7 +20,6 @@ class ProjectSoundEngine {
       const AC = window.AudioContext || (window as any).webkitAudioContext;
       if (AC) {
         this.ctx = new AC();
-        this.setupRollingSynth();
       }
     } catch (e) {
       console.warn("Web Audio API not supported.");
@@ -36,44 +33,6 @@ class ProjectSoundEngine {
     }
     this.init();
     return this.ctx;
-  }
-
-  private setupRollingSynth() {
-    const ctx = this.ctx;
-    if (!ctx) return;
-
-    this.rollOsc = ctx.createOscillator();
-    this.rollGain = ctx.createGain();
-
-    this.rollOsc.type = 'sine'; 
-    this.rollOsc.frequency.setValueAtTime(120, ctx.currentTime);
-    this.rollGain.gain.setValueAtTime(0, ctx.currentTime);
-
-    const lpFilter = ctx.createBiquadFilter();
-    lpFilter.type = 'lowpass';
-    lpFilter.frequency.setValueAtTime(250, ctx.currentTime);
-
-    this.rollOsc.connect(lpFilter);
-    lpFilter.connect(this.rollGain);
-    this.rollGain.connect(ctx.destination);
-    this.rollOsc.start();
-  }
-
-  public updateRollingVelocity(velocity: number) {
-    const ctx = this.ctx; 
-    if (!ctx || !this.rollGain || !this.rollOsc || ctx.state === 'suspended') return;
-
-    const absVel = Math.abs(velocity);
-    const t = ctx.currentTime;
-
-    if (absVel < 0.05) {
-      this.rollGain.gain.setTargetAtTime(0, t, 0.05);
-    } else {
-      const targetGain = Math.min(0.08, absVel * 0.005);
-      const targetFreq = Math.min(300, 120 + absVel * 5);
-      this.rollGain.gain.setTargetAtTime(targetGain, t, 0.03);
-      this.rollOsc.frequency.setTargetAtTime(targetFreq, t, 0.04);
-    }
   }
 
   tick() {
@@ -180,7 +139,6 @@ class ProjectSoundEngine {
 
   destroy() {
     if (this.ctx) {
-      if (this.rollOsc) { try { this.rollOsc.stop(); } catch(e){} }
       this.ctx.close();
       this.ctx = null;
     }
@@ -190,7 +148,7 @@ class ProjectSoundEngine {
 /* ── Project Card ─────────────────────────────────────────────── */
 function ProjectCard({ project }: { project: (typeof PROJECTS)[0]; index: number }) {
   return (
-    <div className="w-[82vw] sm:w-[45vw] md:w-[35vw] max-w-md h-[48vh] sm:h-[45vh] md:h-[50vh] shrink-0 pointer-events-auto">
+    <div className="w-[82vw] sm:w-[45vw] md:w-[35vw] max-w-md h-[42vh] sm:h-[45vh] md:h-[50vh] shrink-0 pointer-events-auto">
       <div
         className="bg-white border-[3px] border-foreground rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 md:p-8 w-full h-full
           overflow-hidden relative select-none flex flex-col justify-between"
@@ -220,7 +178,7 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[0]; index: number
           </h3>
         </div>
 
-        <div className="flex-1 flex flex-col justify-start mt-3 mb-3 relative z-10 overflow-y-auto no-scrollbar">
+        <div className="flex-1 flex flex-col justify-start mt-2 mb-2 relative z-10 overflow-y-auto no-scrollbar">
           <p className="text-muted-fg text-xs sm:text-[13px] leading-relaxed">
             {project.desc}
           </p>
@@ -347,7 +305,6 @@ export default function ProjectsSection() {
           rotationRef.current  = snapped;
           velocityRef.current  = 0;
           
-          // Modulo index wrapping calculation for absolute center checks
           const wrappedClosest = ((closest % totalItems) + totalItems) % totalItems;
           if (wrappedClosest !== currentCenter.current) {
             currentCenter.current   = wrappedClosest;
@@ -368,10 +325,6 @@ export default function ProjectsSection() {
         }
       }
 
-      if (engineRef.current && isIntersectingRef.current) {
-        engineRef.current.updateRollingVelocity(velocityRef.current);
-      }
-
       if (wheelRef.current) {
         if (isMobile) {
           wheelRef.current.style.transform = `none`;
@@ -387,11 +340,8 @@ export default function ProjectsSection() {
           const cardWidth = window.innerWidth * 0.82;
           const gap = 16;
           const totalWidth = cardWidth + gap;
-          
-          // Normalized active floating index that wraps seamlessly
           const activeIndex = ((-rotationRef.current / anglePerItem) % totalItems + totalItems) % totalItems;
           
-          // Find the raw difference and wrap cards dynamically across shortest circular pathways
           let diff = i - activeIndex;
           if (diff > totalItems / 2) {
             diff -= totalItems;
@@ -541,10 +491,10 @@ export default function ProjectsSection() {
   };
 
   return (
-    <section id="projects" ref={containerRef} className="relative bg-muted h-screen w-full overflow-hidden flex flex-col justify-center py-6 sm:py-10 select-none">
+    <section id="projects" ref={containerRef} className="relative bg-muted h-[100dvh] w-full overflow-hidden flex flex-col justify-between py-4 sm:py-10 select-none">
       <FadeIn>
-        <div className="text-center mb-2 sm:mb-4 shrink-0 px-4 z-10 relative">
-          <span className="inline-flex items-center justify-center gap-2 font-outfit text-xs font-bold tracking-widest uppercase text-accent mb-1 sm:mb-2">
+        <div className="text-center mt-2 mb-1 shrink-0 px-4 z-10 relative">
+          <span className="inline-flex items-center justify-center gap-2 font-outfit text-xs font-bold tracking-widest uppercase text-accent mb-1">
             <span className="block w-6 h-0.5 bg-accent rounded" />
             Projects
             <span className="block w-6 h-0.5 bg-accent rounded" />
@@ -559,12 +509,11 @@ export default function ProjectsSection() {
               toFontVariationSettings="'wght' 1000, 'opsz' 40"
             />
           </h2>
-          <p className="text-muted-fg text-xs sm:text-sm mt-1">Swipe or use arrows to explore all {totalItems} projects</p>
+          <p className="text-muted-fg text-[11px] sm:text-sm mt-0.5">Swipe or use arrows to explore all {totalItems} projects</p>
         </div>
       </FadeIn>
 
-      <div className="w-full relative flex items-center justify-center px-2 sm:px-12 md:px-20">
-        {/* Desktop Previous Button */}
+      <div className="w-full relative flex items-center justify-center px-2 sm:px-12 md:px-20 flex-1">
         <button
           onClick={() => handleStep('prev')}
           className="absolute left-4 sm:left-8 z-30 p-3 rounded-full bg-white border-2 border-foreground shadow-pop hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:shadow-pop-active transition-all hidden sm:flex items-center justify-center"
@@ -578,7 +527,7 @@ export default function ProjectsSection() {
 
         <div 
           className="w-full relative flex items-center justify-center cursor-grab active:cursor-grabbing touch-pan-y" 
-          style={{ perspective: isMobile ? 'none' : '2000px', height: '52vh' }} 
+          style={{ perspective: isMobile ? 'none' : '2000px', height: isMobile ? '45vh' : '52vh' }} 
           onMouseDown={handleDragStart} 
           onTouchStart={handleDragStart}
         >
@@ -603,7 +552,6 @@ export default function ProjectsSection() {
           </div>
         </div>
 
-        {/* Desktop Next Button */}
         <button
           onClick={() => handleStep('next')}
           className="absolute right-4 sm:right-8 z-30 p-3 rounded-full bg-white border-2 border-foreground shadow-pop hover:translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:shadow-pop-active transition-all hidden sm:flex items-center justify-center"
@@ -617,17 +565,15 @@ export default function ProjectsSection() {
       </div>
 
       <FadeIn>
-        <div className="w-full max-w-xs sm:max-w-md mx-auto mt-4 sm:mt-8 px-6 z-30 relative flex flex-col items-center gap-4">
-          {/* Progress Bar Track */}
+        <div className="w-full max-w-xs sm:max-w-md mx-auto mb-4 px-6 z-30 relative flex flex-col items-center gap-3 shrink-0">
           <div className="w-full bg-foreground/10 h-2 rounded-full overflow-hidden border border-foreground/20">
             <div ref={progressBarRef} className="h-full bg-foreground rounded-full will-change-[width] transition-[width] duration-100" style={{ width: `${(0.5 / totalItems) * 100}%` }} />
           </div>
 
-          {/* Mobile-Only Arrow Row Interface */}
-          <div className="flex sm:hidden items-center justify-center gap-24 mt-1">
+          <div className="flex sm:hidden items-center justify-center gap-16 mt-0.5">
             <button
               onClick={() => handleStep('prev')}
-              className="p-3 rounded-full bg-white border-2 border-foreground shadow-pop active:shadow-pop-active transition-all flex items-center justify-center"
+              className="p-2.5 rounded-full bg-white border-2 border-foreground shadow-pop active:shadow-pop-active transition-all flex items-center justify-center"
               aria-label="Previous project mobile"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
@@ -636,7 +582,7 @@ export default function ProjectsSection() {
             </button>
             <button
               onClick={() => handleStep('next')}
-              className="p-3 rounded-full bg-white border-2 border-foreground shadow-pop active:shadow-pop-active transition-all flex items-center justify-center"
+              className="p-2.5 rounded-full bg-white border-2 border-foreground shadow-pop active:shadow-pop-active transition-all flex items-center justify-center"
               aria-label="Next project mobile"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
