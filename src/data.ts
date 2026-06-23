@@ -264,5 +264,5 @@ export const CONTACT_LINKS = [
   { label: '💼 LinkedIn',       href: 'https://www.linkedin.com/in/devendra-prajapat-/' },
   { label: '🐙 GitHub',         href: 'https://github.com/Devendar04'     },
   { label: '🤗 HuggingFace',    href: 'https://huggingface.co/Devendra174' },
-  { label: '📄 Resume',          href: '/resume.pdf', download: 'Devendra_Prajapat_Resume.pdf' },
+  { label: '📄 Resume',          href: 'https://drive.google.com/file/d/1_-O-Po5TjpmTLoYOajtGI897drv5QcSZ/view?usp=sharing', download: 'Devendra_Prajapat_Resume.pdf' },
 ]

@@ -295,7 +295,7 @@ export default function HeroSection() {
                 transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)",
               }}
             >
-              <span className="flex items-center gap-1">
+              <span className="flex items-center ">
                 Let&apos;s&nbsp;
                 <span className="relative inline-flex flex-col overflow-hidden h-[15px] sm:h-[24px] min-w-[85px] sm:min-w-[110px] self-center">
                   {ROTATING_WORDS.map((word, index) => {
