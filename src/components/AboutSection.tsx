@@ -177,7 +177,7 @@ export default function AboutSection() {
             <AnimatedText
               className="text-sm sm:text-base leading-loose text-foreground mb-6"
             >
-              With 5+ years of passion for technology, I'm a B.Tech CS student specializing in Machine Learning and Generative AI. I build and deploy deep learning models, agentic AI systems, and RAG pipelines using PyTorch, LangChain, and Transformers. I love turning complex AI research into production-ready systems that solve real problems.
+              With 2+ years of passion for technology, I'm a B.Tech CS student specializing in Machine Learning and Generative AI. I build and deploy deep learning models, agentic AI systems, and RAG pipelines using PyTorch, LangChain, and Transformers. I love turning complex AI research into production-ready systems that solve real problems.
             </AnimatedText>
             <a
               href={`https://mail.google.com/mail/?view=cm&to=parjapatsunny12@gmail.com`}
