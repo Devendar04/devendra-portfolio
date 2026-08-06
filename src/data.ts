@@ -89,7 +89,7 @@ export const PROJECTS = [
       { text: 'Real-time',     bg: 'rgba(251,191,36,0.15)',  border: '#FBBF24', color: '#D97706' },
     ],
     shadow: '8px 8px 0px #34D399',
-    links: [{ label: 'GitHub ↗', href: '#' }],
+    links: [{ label: 'GitHub ↗', href: 'https://github.com/Devendar04/Medelite' }],
   },
   {
     num: '02',
@@ -103,7 +103,7 @@ export const PROJECTS = [
       { text: 'Live Preview', bg: 'rgba(251,191,36,0.15)',  border: '#FBBF24', color: '#D97706' },
     ],
     shadow: '8px 8px 0px #F472B6',
-    links: [{ label: 'GitHub ↗', href: '#' }],
+    links: [{ label: 'GitHub ↗', href: 'https://github.com/Devendar04/deploy-dreamer' }],
   },
   {
     num: '03',
@@ -117,7 +117,7 @@ export const PROJECTS = [
       { text: '100K+ samples', bg: 'rgba(251,191,36,0.15)', border: '#FBBF24', color: '#D97706' },
     ],
     shadow: '8px 8px 0px #8B5CF6',
-    links: [{ label: 'GitHub ↗', href: '#' }, { label: 'Live Demo ↗', href: '#' }],
+    links: [{ label: 'GitHub ↗', href: 'https://github.com/Devendar04/deepfake-sentinel' }],
   },
   {
     num: '04',
@@ -131,7 +131,7 @@ export const PROJECTS = [
       { text: 'Streaming LLM',  bg: 'rgba(52,211,153,0.15)',  border: '#34D399', color: '#059669' },
     ],
     shadow: '8px 8px 0px #FBBF24',
-    links: [{ label: 'GitHub ↗', href: '#' }],
+    links: [{ label: 'GitHub ↗', href: 'https://github.com/Devendar04/Langchain' }],
   },
   {
     num: '05',
@@ -145,7 +145,7 @@ export const PROJECTS = [
       { text: 'Indian TTS',   bg: 'rgba(251,191,36,0.15)',  border: '#FBBF24', color: '#D97706' },
     ],
     shadow: '8px 8px 0px #8B5CF6',
-    links: [{ label: 'GitHub ↗', href: '#' }],
+    links: [],
   },
   {
     num: '06',
@@ -159,7 +159,7 @@ export const PROJECTS = [
       { text: 'Edge AI',     bg: 'rgba(52,211,153,0.15)',  border: '#34D399', color: '#059669' },
     ],
     shadow: '8px 8px 0px #F472B6',
-    links: [{ label: 'GitHub ↗', href: '#' }],
+    links: [{ label: 'GitHub ↗', href: 'https://github.com/Devendar04/SARA-Brain' }],
   },
   {
     num: '07',
@@ -173,7 +173,7 @@ export const PROJECTS = [
       { text: 'CSV Tracking',  bg: 'rgba(251,191,36,0.15)',  border: '#FBBF24', color: '#D97706' },
     ],
     shadow: '8px 8px 0px #34D399',
-    links: [{ label: 'GitHub ↗', href: '#' }],
+    links: [{ label: 'GitHub ↗', href: 'https://github.com/Devendar04/Attendance-System' }],
   },
   {
     num: '08',
@@ -187,7 +187,7 @@ export const PROJECTS = [
       { text: 'WebSockets',  bg: 'rgba(244,114,182,0.10)', border: '#F472B6', color: '#db2777' },
     ],
     shadow: '8px 8px 0px #FBBF24',
-    links: [{ label: 'GitHub ↗', href: '#' }],
+    links: [],
   },
 ]
 
@@ -203,6 +203,19 @@ export const EXPERIENCE = [
     points: [
       'Developed predictive ML models using Python, NumPy, and Pandas.',
       'Integrated AI logic into automation tools for production deployment.',
+    ],
+  },
+  {
+    emoji: '⚙️',
+    color: '#FBBF24',
+    date: 'Oct 2025 – Mar 2026',
+    duration: '6 months',
+    current: false,
+    role: 'Agentic AI and Web Development Intern',
+    company: 'P2N Automation · Udaipur, Rajasthan',
+    points: [
+      'Developed and deployed agentic AI and workflow automation solutions using Python, JavaScript, REST APIs, and automation frameworks to streamline business processes and reduce manual workflows.',
+      'Contributed to end-to-end application development, including requirement analysis, API integration, testing, debugging, and deployment of AI-powered web and automation solutions.',
     ],
   },
   {
