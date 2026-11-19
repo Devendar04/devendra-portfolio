@@ -199,9 +199,9 @@ export const EXPERIENCE = [
     duration: '3 months',
     current: false,
     role: 'AI and Machine Learning Intern',
-    company: 'GRRAS Solutions Pvt. Ltd. · Udaipur',
+    company: 'GRRAS Solutions Pvt. Ltd. · Udaipur, Rajasthan',
     points: [
-      'Developed predictive ML models using Python, NumPy, and Pandas.',
+      'Developed predictive machine learning models using Python, NumPy, and Pandas.',
       'Integrated AI logic into automation tools for production deployment.',
     ],
   },
@@ -214,24 +214,38 @@ export const EXPERIENCE = [
     role: 'Agentic AI and Web Development Intern',
     company: 'P2N Automation · Udaipur, Rajasthan',
     points: [
-      'Developed and deployed agentic AI and workflow automation solutions using Python, JavaScript, REST APIs, and automation frameworks to streamline business processes and reduce manual workflows.',
-      'Contributed to end-to-end application development, including requirement analysis, API integration, testing, debugging, and deployment of AI-powered web and automation solutions.',
+      'Developed and deployed agentic AI and workflow automation solutions using Python, JavaScript, REST APIs, and automation frameworks.',
+      'Contributed to end-to-end application development, including requirement analysis, API integration, testing, debugging, and deployment.',
     ],
   },
   {
     emoji: '💻',
     color: '#8B5CF6',
-    date: 'Apr 2026 – Present',
-    duration: 'Ongoing',
-    current: true,
-    role: 'Web & Agentic Developer Intern',
+    date: 'Apr 2026 – Jun 2026',
+    duration: '3 months',
+    current: false,
+    role: 'Web Developer & Agentic AI Intern',
     company: 'Team #9 Productions · Remote',
     points: [
-      'Building web platforms AI4Marketers and Brand Therapy from scratch.',
-      'Deploying autonomous agentic workflows for marketing automation.',
+      'Developed full-stack web platforms, including AI4Marketers and Brand Therapy, using modern web technologies.',
+      'Designed and deployed autonomous agentic workflows to automate business processes and improve operational efficiency.',
     ],
   },
-]
+  {
+    emoji: '🚀',
+    color: '#34D399',
+    date: 'Aug 2026 – Present',
+    duration: 'Ongoing',
+    current: true,
+    role: 'Backend Developer',
+    company: 'SimplyGrow · Udaipur, Rajasthan',
+    points: [
+      'Developing scalable backend services and RESTful APIs using Python, focusing on application architecture, database management, and third-party integrations.',
+      'Building and integrating AI agents and LLM-powered workflows to automate business processes and enable intelligent application functionalities.',
+      'Implementing API integrations, backend automation, debugging, testing, and performance optimization.',
+    ],
+  },
+];
 
 export const EDUCATION = [
   {
